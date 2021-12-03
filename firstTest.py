@@ -11,4 +11,4 @@ class TestTopo(Topo):
         self.addLink(leftHost,leftSwitch)
         self.addLink(rightHost,leftSwitch)
 
-topos = { 'mytopo': {lambda: TestTopo()}}
+topos = { 'mytopo': TestTopo}
