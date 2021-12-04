@@ -15,8 +15,9 @@ class L2Switch(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER) # MAIN_DISPATCHER as the second argument means this function is called only after the negotiation completes
     def packet_in_handler(self, ev):
+        
+        #read packet data
         msg = ev.msg
-        print(f"Packet in >>> {msg}")
         dp = msg.datapath
         ofp = dp.ofproto
         ofp_parser = dp.ofproto_parser
@@ -25,9 +26,11 @@ class L2Switch(app_manager.RyuApp):
 
         data = None
         if msg.buffer_id == ofp.OFP_NO_BUFFER:
-             data = msg.data
+            data = msg.data
 
         out = ofp_parser.OFPPacketOut(
             datapath=dp, buffer_id=msg.buffer_id, in_port=msg.in_port,
             actions=actions, data = data)
+        
+        # send packet
         dp.send_msg(out)
