@@ -1,5 +1,12 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+
+print(tf.version)
+
+# gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+# for device in gpu_devices:
+#     tf.config.experimental.set_memory_growth(device, True)
 
 # import tensorflow_text as tf_text
 
@@ -21,33 +28,28 @@ from tensorflow import keras
 #   padded_inputs = tf_text.pad_model_inputs(subtokens, max_seq_length=16)
 #   return padded_inputs
 
-inputDataTrain = [[1,1,1],[0,0,0],[0,1,0],[1,0,0],[1,1,0],[0,0,1]]
-outputDataTrain = [[1],[1],[1],[0],[0],[0]]
-inputDataValidate = [[1,0,1],[0,1,1]]
-outputDataValidate = [[1],[0]]
 
-trainDataset = tf.data.Dataset.from_tensor_slices(inputDataTrain,outputDataTrain)
-validateDataset = tf.data.Dataset.from_tensor_slices(inputDataValidate,outputDataValidate)
+inputDataTrain = np.array([[0,0],[0,1],[1,0],[1,1]])
+outputDataTrain = np.array([[0],[1],[1],[0]])
+inputDataValidate = np.array([[0,0]])
 
 model = keras.Sequential([
-    keras.layers.Reshape(target_shape=(1), input_shape=(3,1)),
-    keras.layers.Dense(units=3, activation='relu'),
-    keras.layers.Dense(units=1, activation='softmax')
+    keras.layers.Dense(4, input_dim=2, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
 ])
 
 
-model.compile(optimizer='adam', 
-              loss=tf.losses.CategoricalCrossentropy(from_logits=True),
+model.compile(optimizer='adam',
+              loss='mean_squared_error',
               metrics=['accuracy'])
 
 
 history = model.fit(
-    trainDataset.repeat(), 
-    epochs=10, 
-    steps_per_epoch=100,
-    validation_data=validateDataset.repeat(), 
-    validation_steps=2
+    inputDataTrain,
+    outputDataTrain,
+    epochs=500,
+    #verbose=0
 )
 
-predictions = model.predict(validateDataset)
+predictions = model.predict(inputDataValidate).round()
 print(predictions)
