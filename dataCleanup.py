@@ -40,7 +40,7 @@ while True:
     #print(lineList)
     if len(lineList)!=21: break
     if lineList[10]=="-" or lineList[9]=="-":
-        ratio = "-"
+        ratio = "0"
     else:
         div = int(lineList[9]) + int(lineList[10])
         if div != 0:
@@ -52,6 +52,9 @@ while True:
         certData = certificateDict[lineList[1]]
     else:
         certData = [0,0,0]
+
+    if lineList[9]=="-": lineList[9]="0"
+    if lineList[10]=="-": lineList[10]="0"
     
     dataList = [lineList[8],lineList[9],lineList[10],ratio,lineList[16],lineList[18],*map(str,certData)]
     outputData.write("\t".join(dataList)+"\n")
