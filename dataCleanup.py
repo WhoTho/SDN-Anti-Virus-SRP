@@ -55,3 +55,7 @@ while True:
     
     dataList = [lineList[8],lineList[9],lineList[10],ratio,lineList[16],lineList[18],*map(str,certData)]
     outputData.write("\t".join(dataList)+"\n")
+
+# Setup:
+# 0             1                       2                               3                   4                       5                   6                               7                       8
+# Duration      Size of flows orig      total size of flows resp        ratio of sizes      outbound packets        inbound packets     length of certificate path      certificate length      number of domains in certificate
