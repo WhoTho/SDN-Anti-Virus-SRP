@@ -16,7 +16,7 @@ filePath = lambda name:"/home/gopal/Desktop/srpantivirus/packetDatasets/"+name
 
 fullInput = NP.loadtxt(filePath("mixedPacketInfo"), delimiter="\t")
 fullOutput = NP.loadtxt(filePath("mixedPacketType"), delimiter="\t")
-Xtrain,Xtest,Ytrain,Ytest = SKLMS.train_test_split(fullInput,fullOutput,stratify=fullOutput)
+Xtrain,Xtest,Ytrain,Ytest = SKLMS.train_test_split(fullInput,fullOutput,stratify=fullOutput,random_state=10)
 assert(len(fullInput)==len(fullOutput))
 
 labels = ["Duration","Size of flows orig","total size of flows resp","ratio of sizes","outbound packets","inbound packets","length of certificate path","certificate length","number of domains in certificate"]
