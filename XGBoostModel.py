@@ -2,45 +2,56 @@ import matplotlib.pyplot as MPL
 import numpy as NP
 import sklearn.metrics as SKL
 import xgboost as XGB
+from sklearn import model_selection as SKLMS
 from xgboost import DMatrix, XGBClassifier
 
 filePath = lambda name:"/home/gopal/Desktop/srpantivirus/packetDatasets/"+name
 
 
-maliciousInput = NP.loadtxt(filePath("malicious"), delimiter="\t")
-maliciousOutput = [1]*len(maliciousInput)
-benignInput = NP.loadtxt(filePath("benign"), delimiter="\t")
-benignOutput = [0]*len(benignInput)
 
-fullInput = NP.concatenate((maliciousInput,benignInput))
-fullOutput = NP.concatenate((maliciousOutput,benignOutput))
+# maliciousInput = NP.loadtxt(filePath("malicious"), delimiter="\t")
+# maliciousOutput = NP.ones(len(maliciousInput))
+# benignInput = NP.loadtxt(filePath("benign"), delimiter="\t")
+# benignOutput = NP.zeros(len(benignInput))
+
+fullInput = NP.loadtxt(filePath("mixedPacketInfo"), delimiter="\t")
+fullOutput = NP.loadtxt(filePath("mixedPacketType"), delimiter="\t")
+Xtrain,Xtest,Ytrain,Ytest = SKLMS.train_test_split(fullInput,fullOutput)
 assert(len(fullInput)==len(fullOutput))
 
 labels = ["Duration","Size of flows orig","total size of flows resp","ratio of sizes","outbound packets","inbound packets","length of certificate path","certificate length","number of domains in certificate"]
 
-dataTrain = DMatrix(fullInput,label=fullOutput, feature_names=labels)
+dataTrain = DMatrix(Xtrain,label=Ytrain,feature_names=labels)
+dataTest = DMatrix(Xtest,label=Ytest,feature_names=labels)
 
 
-param = {"verbosity":1,"max_depth":6, "objective":"binary:logistic"}
-numberOfRounds = 50
+param = {"verbosity":0,"max_depth":9, "eta":0.1,"objective":"binary:hinge", "eval_metric":"error"}
+numberOfRounds = 10000
+
+watchlist = [(dataTrain,'train'),(dataTest,'eval')]
+evals_result = {}
+model = XGB.train(param, dataTrain, numberOfRounds, watchlist, evals_result=evals_result,early_stopping_rounds=750)
+model.save_model(filePath("model.txt"))
+
+evalOutput = open(filePath("evalOutput"),"w+")
 
 
-model = XGB.train(param, dataTrain, numberOfRounds)
-print(XGB.get_config())
-print(fullInput[6])
-pre = model.predict(DMatrix([fullInput[6]], feature_names=labels))
-print(fullOutput[6])
-print(pre)
-XGB.plot_importance(model)
-MPL.show()
+i=0
+while i < len(evals_result['eval']['error']):
+    evalOutput.write(str(evals_result['train']['error'][i])+"\t"+str(evals_result['eval']['error'][i])+"\n")
+    i+=1
+print("done")
 
-model = XGBClassifier(max_depth=6,n_estimators=50)
-print(model)
+#model = XGB.cv(dtrain=dataTrain, params=param,nfold=10,metrics="auc",seed=1)
+#print(XGB.get_config())
+# print(f'fullnput: {fullInput[6]}')
+# pre = model.predict(DMatrix([fullInput[6]], feature_names=labels))
+# print(fullOutput[6])
+# print(pre)
+#XGB.plot_importance(model)
+#MPL.show()
 
-model.fit(fullInput,fullOutput)
-print(fullInput[6])
-print(model.predict(fullInput[6]))
-print(fullOutput[6])
+
 
 #SKL.recall_score()
 

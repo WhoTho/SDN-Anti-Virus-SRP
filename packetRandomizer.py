@@ -1,5 +1,7 @@
 import random
 
+filePath = lambda name:"/home/gopal/Desktop/srpantivirus/packetDatasets/"+name
+
 maliciousInput = open(filePath("malicious"))
 benignInput = open(filePath("benign"))
 
