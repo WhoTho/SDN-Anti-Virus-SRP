@@ -16,7 +16,7 @@ filePath = lambda name:"/home/gopal/Desktop/srpantivirus/packetDatasets/"+name
 
 fullInput = NP.loadtxt(filePath("mixedPacketInfo"), delimiter="\t")
 fullOutput = NP.loadtxt(filePath("mixedPacketType"), delimiter="\t")
-Xtrain,Xtest,Ytrain,Ytest = SKLMS.train_test_split(fullInput,fullOutput)
+Xtrain,Xtest,Ytrain,Ytest = SKLMS.train_test_split(fullInput,fullOutput,stratify=fullOutput)
 assert(len(fullInput)==len(fullOutput))
 
 labels = ["Duration","Size of flows orig","total size of flows resp","ratio of sizes","outbound packets","inbound packets","length of certificate path","certificate length","number of domains in certificate"]
@@ -25,12 +25,12 @@ dataTrain = DMatrix(Xtrain,label=Ytrain,feature_names=labels)
 dataTest = DMatrix(Xtest,label=Ytest,feature_names=labels)
 
 
-param = {"verbosity":0,"max_depth":9, "eta":0.01,"objective":"binary:hinge", "eval_metric":"error", "n_estimators":1000}
-numberOfRounds = 100000
+param = {"verbosity":0,"max_depth":9, "eta":0.01,"objective":"binary:hinge", "eval_metric":"error"}
+numberOfRounds = 1000
 
 watchlist = [(dataTrain,'train'),(dataTest,'eval')]
 evals_result = {}
-model = XGB.train(param, dataTrain, numberOfRounds, watchlist, evals_result=evals_result,early_stopping_rounds=7500)
+model = XGB.train(param, dataTrain, numberOfRounds, watchlist, evals_result=evals_result,early_stopping_rounds=100)
 model.save_model(filePath("model.txt"))
 
 evalOutput = open(filePath("evalOutput"),"w+")
