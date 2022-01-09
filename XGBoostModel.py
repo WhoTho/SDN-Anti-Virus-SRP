@@ -25,12 +25,12 @@ dataTrain = DMatrix(Xtrain,label=Ytrain,feature_names=labels)
 dataTest = DMatrix(Xtest,label=Ytest,feature_names=labels)
 
 
-param = {"verbosity":0,"max_depth":9, "eta":0.1,"objective":"binary:hinge", "eval_metric":"error"}
-numberOfRounds = 10000
+param = {"verbosity":0,"max_depth":9, "eta":0.01,"objective":"binary:hinge", "eval_metric":"error", "n_estimators":1000}
+numberOfRounds = 100000
 
 watchlist = [(dataTrain,'train'),(dataTest,'eval')]
 evals_result = {}
-model = XGB.train(param, dataTrain, numberOfRounds, watchlist, evals_result=evals_result,early_stopping_rounds=750)
+model = XGB.train(param, dataTrain, numberOfRounds, watchlist, evals_result=evals_result,early_stopping_rounds=7500)
 model.save_model(filePath("model.txt"))
 
 evalOutput = open(filePath("evalOutput"),"w+")
@@ -48,8 +48,8 @@ print("done")
 # pre = model.predict(DMatrix([fullInput[6]], feature_names=labels))
 # print(fullOutput[6])
 # print(pre)
-#XGB.plot_importance(model)
-#MPL.show()
+XGB.plot_importance(model)
+MPL.show()
 
 
 
