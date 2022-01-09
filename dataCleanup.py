@@ -60,5 +60,5 @@ while True:
     outputData.write("\t".join(dataList)+"\n")
 
 # Setup:
-# 0             1                       2                               3                   4                       5                   6                               7                       8
-# Duration      Size of flows orig      total size of flows resp        ratio of sizes      outbound packets        inbound packets     length of certificate path      certificate length      number of domains in certificate
+# 0             1                       2                               3                   4                       5                   6                               7                                     8
+# Duration      Size of flows orig      total size of flows resp        ratio of sizes      outbound packets        inbound packets     length of certificate path      number of domains in certificate      certificate length
