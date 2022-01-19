@@ -4,7 +4,7 @@ import sklearn.metrics as SKL
 import xgboost as XGB
 from xgboost import XGBClassifier
 
-filePath = lambda name:"/home/gopal/Desktop/srpantivirus/packetDatasets/"+name
+filePath = lambda name:"/home/gopal/Desktop/srpantivirus/test2/"+name
 
 
 fullInput = NP.loadtxt(filePath("mixedPacketInfo"), delimiter="\t")
@@ -16,7 +16,7 @@ assert(len(fullInput)==len(fullOutput))
 model = XGBClassifier()
 model.load_model(filePath("model.txt"))
 
-labels = ["Duration","Size of flows orig","total size of flows resp","ratio of sizes","outbound packets","inbound packets","length of certificate path","number of domains in certificate","certificate length"]
+labels = ["protocol", "conn_state", "duration", "orig_bytes", "resp_bytes", "orig_pkts", "orig_ip_bytes", "resp_pkts", "resp_ip_bytes", "ratio", "certPathLength", "domainCount", "key_length"]
 
 model.feature_names = labels
 
