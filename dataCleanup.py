@@ -1,34 +1,49 @@
-filePath = lambda name:"/home/gopal/Desktop/srpantivirus/CTU-1-log-output/"+name
+filePath = lambda name: "/home/gopal/Desktop/srpantivirus/CTU-1-log-output/" + name
+clean = lambda value: value if value!="-" else "0"
 
 connFile = open(filePath("conn.log"))
 sslFile = open(filePath("ssl.log"))
 x509File = open(filePath("x509.log"))
-outputData = open(filePath("allPacketInfo"), "w+")
+outputData = open(filePath("malicousInfo"), "w+")
 
 
-x509InfoDict = {"-":[0,0]}
+x509InfoDict = {"-":["0","0"]}
 for line in x509File.readlines()[8:-1]:
     lineList = line.split("\t")
-    if lineList[14]!="-":
-        domainCount = lineList[14].count(",")+1
+
+    fingerprint = lineList[1]
+    dns = lineList[14]
+    key_length = clean(lineList[11])
+
+    if dns != "-":
+        domainCount = str(dns.count(",") + 1)
     else:
-        domainCount = 0
-    x509InfoDict[lineList[1]]=[domainCount,int(lineList[11])]
+        domainCount = "0"
+
+    x509InfoDict[fingerprint] = [domainCount, key_length]
 #print(x509InfoDict)
 
 
 certificateDict = {}
-#certLengthsList = []
 for line in sslFile.readlines()[8:-1]:
     lineList = line.split("\t")
-    certList = lineList[15].split(",")
-    if certList[0]!="-":
-        certPathLength = len(certList)
+
+    uid = lineList[1]
+    ssl_history = lineList[15].split(",")
+
+    domainCount, key_length = x509InfoDict[ssl_history[0]]
+
+    if ssl_history[0] != "-":
+        certPathLength = str(len(ssl_history))
     else:
-        certPathLength = 0
-    certificateDict[lineList[1]]=[certPathLength,*x509InfoDict[certList[0]]]
+        certPathLength = "0"
+
+    certificateDict[lineList[1]] = [certPathLength, domainCount, key_length]
 #print(certificateDict)
 
+
+states = ["S0","S1","SF","REJ","S2","S3","RSTO","RSTR","RSTOS0","RSTRH","SH","SHR","OTH"]
+protocols = ["udp", "tcp", "icmp"]
 
 for i in range(8):
     connFile.readline()
@@ -36,29 +51,29 @@ for i in range(8):
 while True:
     line = connFile.readline()
     if not line: break
-    lineList = line.split()
-    #print(lineList)
+
+    lineList = line.split("\t")
+
     if len(lineList)!=21: break
-    if lineList[10]=="-" or lineList[9]=="-":
-        ratio = "0"
-    else:
-        div = int(lineList[9]) + int(lineList[10])
-        if div != 0:
-            ratio = str(round(int(lineList[10]) / (int(lineList[9]) + int(lineList[10])),5))
-        else:
-            ratio = "0"
-    
-    if lineList[1] in certificateDict:
-        certData = certificateDict[lineList[1]]
-    else:
-        certData = [0,0,0]
 
-    if lineList[9]=="-": lineList[9]="0"
-    if lineList[10]=="-": lineList[10]="0"
+    uid = lineList[1]
+    protocol = str(protocols.index(lineList[6])+1) if lineList[6] in protocols else "0"
+    conn_state = str(states.index(lineList[11])+1) if lineList[11] in states else "0"
+    duration = clean(lineList[8])
+    orig_bytes = clean(lineList[9])
+    resp_bytes = clean(lineList[10])
+    orig_pkts = clean(lineList[16])
+    orig_ip_bytes = clean(lineList[17])
+    resp_pkts = clean(lineList[18])
+    resp_ip_bytes = clean(lineList[19])
+
+    total_bytes = int(orig_bytes) + int(resp_bytes)
+    ratio = str(round(int(resp_bytes) / total_bytes,5)) if total_bytes != 0 else "0"
+
+    if uid in certificateDict:
+        certPathLength, domainCount, key_length = certificateDict[uid]
+    else:
+        certPathLength = domainCount = key_length = "0"
     
-    dataList = [lineList[8],lineList[9],lineList[10],ratio,lineList[16],lineList[18],*map(str,certData)]
+    dataList = [protocol, conn_state, duration, orig_bytes, resp_bytes, orig_pkts, orig_ip_bytes, resp_pkts, resp_ip_bytes, ratio, certPathLength, domainCount, key_length]
     outputData.write("\t".join(dataList)+"\n")
-
-# Setup:
-# 0             1                       2                               3                   4                       5                   6                               7                                     8
-# Duration      Size of flows orig      total size of flows resp        ratio of sizes      outbound packets        inbound packets     length of certificate path      number of domains in certificate      certificate length
