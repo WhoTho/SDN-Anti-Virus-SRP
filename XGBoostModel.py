@@ -28,9 +28,8 @@ while i < len(evals_result['validation_0']['error']):
     i+=1
 print("done")
 
-cmLabels = ["Malicious", "Benign"]
 predictions = model.predict(X=fullInput)
 cm = SKL.confusion_matrix(fullOutput, predictions)
-disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=cmLabels)
+disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels)
 disp.plot()
 MPL.show()
