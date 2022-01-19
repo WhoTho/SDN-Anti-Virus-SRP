@@ -13,7 +13,7 @@ assert(len(fullInput)==len(fullOutput))
 
 numberOfRounds = 1000
 watchlist = [(Xtrain, Ytrain), (Xtest, Ytest)]
-param = {"use_label_encoder" : False, "verbosity" : 0, "max_depth" : 9, "eta" : 0.01, "objective" : "binary:hinge", "n_estimators" : numberOfRounds, "eval_set" : watchlist, "early_stopping_rounds" : 50}
+param = {"use_label_encoder" : False, "verbosity" : 0, "max_depth" : 9, "eta" : 0.01, "objective" : "binary:hinge", "n_estimators" : numberOfRounds, "eval_set" : watchlist, "early_stopping_rounds" : 50, "subsample" : 0.75}
 
 model = XGBClassifier(**param)
 model.fit(X=Xtrain, y=Ytrain, eval_set=[(Xtrain, Ytrain), (Xtest, Ytest)], eval_metric='error')

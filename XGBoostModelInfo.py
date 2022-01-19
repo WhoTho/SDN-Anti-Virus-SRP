@@ -22,10 +22,9 @@ model.feature_names = labels
 
 XGB.plot_importance(model).set_yticklabels(labels[::-1])
 
-cmLabels = ["Malicious","Benign"]
 predictions = model.predict(X=fullInput)
 cm = SKL.confusion_matrix(fullOutput, predictions)
-disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=cmLabels)
+disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 MPL.show()
 
