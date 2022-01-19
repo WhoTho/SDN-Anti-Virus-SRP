@@ -30,6 +30,6 @@ print("done")
 
 predictions = model.predict(X=fullInput)
 cm = SKL.confusion_matrix(fullOutput, predictions)
-disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels)
+disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 MPL.show()
