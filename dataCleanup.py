@@ -1,45 +1,51 @@
-filePath = lambda name: "/home/gopal/Desktop/srpantivirus/CTU-1-log-output/" + name
+filePath = lambda name: "/home/gopal/Desktop/srpantivirus/CTU-13-Dataset/13/" + name
 clean = lambda value: value if value!="-" else "0"
 
 connFile = open(filePath("conn.log"))
-sslFile = open(filePath("ssl.log"))
-x509File = open(filePath("x509.log"))
-outputData = open(filePath("malicousInfo"), "w+")
 
+certFilesExist = True
+try:
+    sslFile = open(filePath("ssl.log"))
+    x509File = open(filePath("x509.log"))
+except:
+    certFilesExist = False
+
+outputData = open(filePath("maliciousInfo"), "w+")
 
 x509InfoDict = {"-":["0","0"]}
-for line in x509File.readlines()[8:-1]:
-    lineList = line.split("\t")
-
-    fingerprint = lineList[1]
-    dns = lineList[14]
-    key_length = clean(lineList[11])
-
-    if dns != "-":
-        domainCount = str(dns.count(",") + 1)
-    else:
-        domainCount = "0"
-
-    x509InfoDict[fingerprint] = [domainCount, key_length]
-#print(x509InfoDict)
-
-
 certificateDict = {}
-for line in sslFile.readlines()[8:-1]:
-    lineList = line.split("\t")
 
-    uid = lineList[1]
-    ssl_history = lineList[15].split(",")
+if certFilesExist:
+    for line in x509File.readlines()[8:-1]:
+        lineList = line.split("\t")
 
-    domainCount, key_length = x509InfoDict[ssl_history[0]]
+        fingerprint = lineList[1]
+        dns = lineList[14]
+        key_length = clean(lineList[11])
 
-    if ssl_history[0] != "-":
-        certPathLength = str(len(ssl_history))
-    else:
-        certPathLength = "0"
+        if dns != "-":
+            domainCount = str(dns.count(",") + 1)
+        else:
+            domainCount = "0"
 
-    certificateDict[lineList[1]] = [certPathLength, domainCount, key_length]
-#print(certificateDict)
+        x509InfoDict[fingerprint] = [domainCount, key_length]
+    #print(x509InfoDict)
+    
+    for line in sslFile.readlines()[8:-1]:
+        lineList = line.split("\t")
+
+        uid = lineList[1]
+        ssl_history = lineList[15].split(",")
+
+        domainCount, key_length = x509InfoDict[ssl_history[0]]
+
+        if ssl_history[0] != "-":
+            certPathLength = str(len(ssl_history))
+        else:
+            certPathLength = "0"
+
+        certificateDict[lineList[1]] = [certPathLength, domainCount, key_length]
+    #print(certificateDict)
 
 
 states = ["S0","S1","SF","REJ","S2","S3","RSTO","RSTR","RSTOS0","RSTRH","SH","SHR","OTH"]
