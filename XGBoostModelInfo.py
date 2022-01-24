@@ -4,14 +4,13 @@ import sklearn.metrics as SKL
 import xgboost as XGB
 from xgboost import XGBClassifier
 
-filePath = lambda name:"/home/gopal/Desktop/srpantivirus/test2/"+name
+filePath = lambda name:"/home/gopal/Desktop/srpantivirus/master/"+name
 
 
-fullInput = NP.loadtxt(filePath("mixedPacketInfo"), delimiter="\t")
-fullOutput = NP.loadtxt(filePath("mixedPacketType"), delimiter="\t")
+fullInput = NP.loadtxt(filePath("masterMixedPacketInfo"), delimiter="\t")
+fullOutput = NP.loadtxt(filePath("masterMixedPacketType"), delimiter="\t")
 
 assert(len(fullInput)==len(fullOutput))
-
 
 model = XGBClassifier()
 model.load_model(filePath("model.txt"))
@@ -28,6 +27,22 @@ disp = SKL.ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 MPL.show()
 
-print(f'Accuracy: {SKL.accuracy_score(fullOutput, predictions)}')
-print(f'Precision: {SKL.precision_score(fullOutput, predictions)}')
-print(f'Recall: {SKL.recall_score(fullOutput, predictions)}')
+assert(len(fullOutput)==len(predictions))
+
+
+truePositive = 0
+falsePositive = 0
+trueNegative = 0
+falseNegative = 0
+for real,pred in zip(fullOutput, predictions):
+    if real == 0:
+        if pred == 0: trueNegative += 1
+        else: falsePositive += 1
+    else:
+        if pred == 1: truePositive += 1
+        else: falseNegative += 1
+
+print(f'Accuracy: {(truePositive + trueNegative) / len(predictions)}')
+print(f'Precision: {truePositive / (truePositive + falsePositive)}')
+print(f'Recall: {truePositive / (truePositive + falseNegative)}')
+print(f'Selectivity: {trueNegative / (trueNegative + falsePositive)}')
